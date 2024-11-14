@@ -1,5 +1,3 @@
-import video1 from "../assets/video1.mp4";
-import video2 from "../assets/video2.mp4";
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
 
@@ -77,7 +75,8 @@ const HeroSection = () => {
             muted
             className="rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50"
           >
-            <source src={video1} type="video/mp4" />
+            {/* Update video path to reference public/assets */}
+            <source src={`public/assets/video1.mp4`} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>
@@ -91,7 +90,8 @@ const HeroSection = () => {
             muted
             className="rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50"
           >
-            <source src={video2} type="video/mp4" />
+            {/* Update video path to reference public/assets */}
+            <source src={`public/assets/video2.mp4`} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>

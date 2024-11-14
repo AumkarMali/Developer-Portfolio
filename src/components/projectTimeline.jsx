@@ -56,7 +56,7 @@ const Projects = () => {
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="relative rounded-xl overflow-hidden">
                   <video
-                    src="src/assets/video4.mp4"
+                    src="public/assets/video4.mp4"
                     alt="RC Car Controlled with Arduino"
                     className="w-full h-full object-cover rounded-xl"
                     autoPlay
@@ -105,7 +105,7 @@ const Projects = () => {
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="relative rounded-xl overflow-hidden">
                   <video
-                    src="src/assets/video1.mp4"
+                    src="public/assets/video1.mp4"
                     alt="RC Car Controlled with Arduino"
                     className="w-full h-full object-cover rounded-xl"
                     autoPlay
@@ -202,7 +202,7 @@ const Projects = () => {
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="relative rounded-xl overflow-hidden">
                   <video 
-                    src="src/assets/video3.mp4"
+                    src="public/assets/video3.mp4"
                     alt="RC Car Controlled with Arduino" 
                     className="w-full h-full object-cover rounded-xl"
                     autoPlay

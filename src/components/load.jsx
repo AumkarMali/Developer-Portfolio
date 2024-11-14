@@ -99,7 +99,8 @@ const LoadingPage = () => {
             zIndex: '-1',
           }}
         >
-          <source src="src/assets/backdrop.mp4" type="video/mp4" />
+          {/* Directly reference the video from the public/assets folder */}
+          <source src="/assets/backdrop.mp4" type="video/mp4" />
         </video>
       </div>
     </div>

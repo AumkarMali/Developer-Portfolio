@@ -1,13 +1,133 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Importing Poppins font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Poppins", sans-serif;
+  color-scheme: dark light;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Setting the background gradient and video */
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5)); /* Gradient background */
+  height: 100vh; /* Full viewport height */
+  color: white; /* Default text color for visibility */
+}
+
+/* Styling the video */
+#background-video {
+  position: fixed; /* Keeps the video fixed in place */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the video covers the full screen */
+  z-index: -1; /* Places the video behind all content */
+}
+
+/* Content styling */
+.content {
+  position: relative;
+  z-index: 1; /* Content above the background video */
+  color: white; /* Ensures text stands out */
+  text-align: center;
+  padding: 20px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Container for the entire page */
+.social-container {
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Styling for the stat cards */
+.stats-cards {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+  font-size: 40px;
+}
+
+.card-content h3 {
+  font-size: 18px;
+  margin-top: 10px;
+  color: #333;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #007BFF;
+  margin-top: 10px;
+}
+
+/* Optional: Add animations for number counters (if you want) */
+.stat-value {
+  animation: countUp 1.5s ease-out forwards;
+}
+
+@keyframes countUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+:root {
+  --foreground: #201f1f;
+  --background: #ffffff;
+}
+
+.dark {
+  --foreground: #fff5eb;
+  --background: linear-gradient(135deg, #000000, #222121);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  min-height: 100vh;
+  transition: color 1.3s, background 0.3s;
+}
+
+/* Optional: Add a subtle glow effect to orange elements in dark mode */
+.dark .text-orange-500 {
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.3);
 }

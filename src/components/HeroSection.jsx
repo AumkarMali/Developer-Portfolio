@@ -76,7 +76,7 @@ const HeroSection = () => {
             className="rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50"
           >
             {/* Update video path to reference public/assets */}
-            <source src={`public/assets/video1.mp4`} type="video/mp4" />
+            <source src={`/assets/video1.mp4`} type="video/mp4" /> 
             Your browser does not support the video tag.
           </video>
         </div>
@@ -91,7 +91,7 @@ const HeroSection = () => {
             className="rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50"
           >
             {/* Update video path to reference public/assets */}
-            <source src={`public/assets/video2.mp4`} type="video/mp4" />
+            <source src={`/assets/video2.mp4`} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         </div>

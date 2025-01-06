@@ -103,7 +103,7 @@ const Projects = () => {
           <div className="relative rounded-2xl overflow-hidden p-[2px] bg-gradient-to-r from-orange-500/50 to-orange-400/50 shadow-[0_0_50px_rgba(249,115,22,0.3)]">
             <div className="bg-gray-900/90 rounded-2xl p-8">
               <div className="grid md:grid-cols-2 gap-8">
-                <div className="relative rounded-xl overflow-hidden">
+               <div className="relative rounded-xl overflow-hidden">
                   <video
                     src="/assets/video1.mp4"
                     alt="RC Car Controlled with Arduino"
@@ -112,7 +112,12 @@ const Projects = () => {
                     loop
                     muted
                     playsInline
-                  />
+                    preload="none"
+                    loading="lazy"
+                    poster="/images/chess-poster.jpg"  {/* Add a poster image for initial display */}
+                  >
+                    <source src="/assets/video1.mp4" type="video/mp4" />
+                  </video>
                 </div>
                 <div className="space-y-6">
                   <h2 className="text-4xl font-bold">

@@ -73,6 +73,18 @@ const Navbar = () => {
     return false;
   });
 
+  const handleNavigation = (e, href) => {
+    e.preventDefault();
+    const element = document.getElementById(href);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+      setMobileDrawerOpen(false); // Close mobile menu after clicking
+    }
+  };
+
   const toggleNavbar = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
   };
@@ -124,7 +136,8 @@ const Navbar = () => {
                 {navItems.map((item, index) => (
                   <li key={index}>
                     <a 
-                      href={item.href} 
+                      href={`#${item.href}`}
+                      onClick={(e) => handleNavigation(e, item.href)}
                       className={`transition-colors duration-300
                         ${darkMode 
                           ? 'text-orange-200 hover:text-orange-400' 
@@ -170,7 +183,8 @@ const Navbar = () => {
                 {navItems.map((item, index) => (
                   <li key={index}>
                     <a 
-                      href={item.href} 
+                      href={`#${item.href}`}
+                      onClick={(e) => handleNavigation(e, item.href)}
                       className={`text-lg transition-colors duration-300
                         ${darkMode 
                           ? 'text-orange-200 hover:text-orange-400' 

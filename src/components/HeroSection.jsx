@@ -1,5 +1,82 @@
 import { motion } from 'framer-motion';
 import { TypeAnimation } from 'react-type-animation';
+import { useState, useRef, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+
+const VideoPlayer = ({ src, index, loop = false, endOffset = 0 }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  const [videoDuration, setVideoDuration] = useState(0);
+  const videoRef = useRef(null);
+
+  const handleLoadedData = () => {
+    setIsLoading(false);
+    if (videoRef.current) {
+      setVideoDuration(videoRef.current.duration);
+    }
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setIsError(true);
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current && endOffset > 0) {
+      const targetEnd = videoDuration - endOffset;
+      if (videoRef.current.currentTime >= targetEnd) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
+      }
+    }
+  };
+
+  // Preload video
+  const handleCanPlay = () => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.log('Auto-play prevented:', error);
+      });
+    }
+  };
+
+  return (
+    <div className="relative w-[45%] mx-2 group">
+      {/* Glow effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-red-500/30 to-orange-500/30 rounded-lg blur-2xl transform scale-110 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      
+      {/* Loading state */}
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 rounded-lg z-20">
+          <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        </div>
+      )}
+
+      {/* Error state */}
+      {isError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80 rounded-lg z-20">
+          <p className="text-orange-500">Failed to load video {index}</p>
+        </div>
+      )}
+
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        loop={loop}
+        onTimeUpdate={handleTimeUpdate}
+        className={`rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        onLoadedData={handleLoadedData}
+        onError={handleError}
+        onCanPlay={handleCanPlay}
+        preload="auto"
+      >
+        <source src={src} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+  );
+};
 
 const HeroSection = () => {
   return (
@@ -65,36 +142,8 @@ const HeroSection = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        {/* Video container with hover effects */}
-        <div className="relative w-[45%] mx-2 group">
-          {/* Glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/30 to-orange-500/30 rounded-lg blur-2xl transform scale-110 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <video
-            autoPlay
-            loop
-            muted
-            className="rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50"
-          >
-            {/* Update video path to reference public/assets */}
-            <source src={`/assets/video1.mp4`} type="video/mp4" /> 
-            Your browser does not support the video tag.
-          </video>
-        </div>
-        
-        <div className="relative w-[45%] mx-2 group">
-          {/* Glow effect */}
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/30 to-orange-500/30 rounded-lg blur-2xl transform scale-110 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <video
-            autoPlay
-            loop
-            muted
-            className="rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50"
-          >
-            {/* Update video path to reference public/assets */}
-            <source src={`/assets/video2.mp4`} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        </div>
+        <VideoPlayer src="/assets/video1.mp4" index={1} loop={true} endOffset={0.5} />
+        <VideoPlayer src="/assets/video2.mp4" index={2} loop={true} />
       </motion.div>
 
       {/* Empty section for spacing */}

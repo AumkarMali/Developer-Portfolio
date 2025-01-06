@@ -18,7 +18,7 @@ const AboutSection = () => {
   };
 
   return (
-    <div className="w-full py-16 px-4 mb-64">
+    <div className="w-full py-16 px-4 mb-64" id="aboutSec">
       {/* Title Section */}
       <motion.div 
         className="text-center px-1 lg:px-40 mt-4 lg:mt-10 mb-10"
@@ -67,7 +67,7 @@ const AboutSection = () => {
         >
           <h3 className="text-2xl text-grey-500 mb-4">Present</h3>
           <p className="text-gray-300 leading-relaxed">
-            Currently, I am pursuing my Bachelor's degree in Mechatronics Engineering at the University of Waterloo, where I maintain a 4.0 GPA and have received the prestigious President’s Scholarship of Distinction. I am also gaining hands-on experience as a Software Development Engineer intern at Amazon, where I work on large-scale, production-level systems. In addition, I am the founder of Arabic-Poetry.net, a platform dedicated to the celebration and promotion of Arabic poetry, and I continue to explore new technologies and tools to improve my development skills.
+          Currently, I am pursuing my Bachelor's degree in Mechatronics Engineering at the University of Waterloo, where I maintain a 4.0 GPA and have received the prestigious President’s Scholarship of Distinction. I am also gaining hands-on experience as a Firmware Engineer intern at Midnight Sun Solar Race Team, where I work on large-scale, Solar Cars and prepare them for the annual FSGP.
           </p>
         </motion.div>
 

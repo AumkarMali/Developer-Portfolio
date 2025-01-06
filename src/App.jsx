@@ -1,4 +1,4 @@
-import  { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Navbar from "./components/Navbar";
 import Intro from "./components/introductionPage";
 import Footer from "./components/Footer";
@@ -7,33 +7,31 @@ import Projects from "./components/projectTimeline";
 import Social from "./components/social";
 import About from "./components/about";
 import LoadingPage from './components/load';
+import Background from './components/Background';
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Simulate loading process
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
 
   return (
     <>
       {isLoading ? (
-        <LoadingPage />
+        <LoadingPage onLoadingComplete={handleLoadingComplete} />
       ) : (
-        <>
-          <Navbar />
-          <HeroSection />
-          <About />
-          <Intro />
-          <Projects />
-          <Social />
-          <Footer />
-        </>
+        <Background>
+          <div className="min-h-screen bg-transparent">
+            <Navbar />
+            <HeroSection />
+            <About />
+            <Intro />
+            <Projects />
+            <Social />
+            <Footer />
+          </div>
+        </Background>
       )}
     </>
   );

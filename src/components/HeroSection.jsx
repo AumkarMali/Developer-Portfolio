@@ -3,54 +3,38 @@ import { TypeAnimation } from 'react-type-animation';
 import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-// Separate VideoPreloader component to handle video preloading
-const VideoPreloader = ({ onAllVideosLoaded }) => {
-  const [loadedCount, setLoadedCount] = useState(0);
-  const totalVideos = 2; // We have 2 videos to preload
-
-  useEffect(() => {
-    const videoSources = ['/assets/video1.mp4', '/assets/video2.mp4'];
-    const videoElements = videoSources.map(() => new Audio());
-
-    videoSources.forEach((src, index) => {
-      const video = videoElements[index];
-      video.src = src;
-      video.preload = 'auto';
-      
-      video.onloadeddata = () => {
-        setLoadedCount(prev => {
-          const newCount = prev + 1;
-          if (newCount === totalVideos) {
-            onAllVideosLoaded();
-          }
-          return newCount;
-        });
-      };
-    });
-
-    return () => {
-      videoElements.forEach(video => {
-        video.onloadeddata = null;
-        video.src = '';
-      });
-    };
-  }, [onAllVideosLoaded]);
-
-  return null;
-};
-
-const VideoPlayer = ({ src, index, loop = false, endOffset = 0, isPreloaded }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+const VideoPlayer = ({ src, index, loop = false, endOffset = 0 }) => {
+  const [loadingState, setLoadingState] = useState('loading');
   const videoRef = useRef(null);
 
   useEffect(() => {
-    if (isPreloaded && videoRef.current) {
-      videoRef.current.play().catch(error => {
-        console.log('Auto-play prevented:', error);
-      });
-      setIsPlaying(true);
+    if (videoRef.current) {
+      // Only start loading when the component mounts
+      videoRef.current.load();
+      
+      // Add loading metadata event
+      const handleLoadedMetadata = () => {
+        // Once metadata is loaded, we can start playing
+        videoRef.current.play().catch(error => {
+          console.log('Auto-play prevented:', error);
+        });
+      };
+
+      const handleCanPlay = () => {
+        setLoadingState('ready');
+      };
+
+      videoRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
+      videoRef.current.addEventListener('canplay', handleCanPlay);
+
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
+          videoRef.current.removeEventListener('canplay', handleCanPlay);
+        }
+      };
     }
-  }, [isPreloaded]);
+  }, []);
 
   const handleTimeUpdate = () => {
     if (videoRef.current && endOffset > 0) {
@@ -68,7 +52,7 @@ const VideoPlayer = ({ src, index, loop = false, endOffset = 0, isPreloaded }) =
       <div className="absolute inset-0 bg-gradient-to-r from-red-500/30 to-orange-500/30 rounded-lg blur-2xl transform scale-110 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       
       {/* Loading state */}
-      {!isPlaying && (
+      {loadingState === 'loading' && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/80 rounded-lg z-20">
           <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
         </div>
@@ -80,11 +64,10 @@ const VideoPlayer = ({ src, index, loop = false, endOffset = 0, isPreloaded }) =
         playsInline
         loop={loop}
         onTimeUpdate={handleTimeUpdate}
-        onPlaying={() => setIsPlaying(true)}
         className={`rounded-lg border border-orange-700 w-full relative z-10 transition-shadow duration-300 group-hover:shadow-lg group-hover:shadow-orange-500/50 ${
-          isPlaying ? 'opacity-100' : 'opacity-0'
+          loadingState === 'ready' ? 'opacity-100' : 'opacity-0'
         }`}
-        preload="auto"
+        preload="metadata"
       >
         <source src={src} type="video/mp4" />
         Your browser does not support the video tag.
@@ -94,8 +77,6 @@ const VideoPlayer = ({ src, index, loop = false, endOffset = 0, isPreloaded }) =
 };
 
 const HeroSection = () => {
-  const [videosPreloaded, setVideosPreloaded] = useState(false);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -104,8 +85,6 @@ const HeroSection = () => {
       id="start"
       className="flex flex-col items-center mt-6 lg:mt-20"
     >
-      <VideoPreloader onAllVideosLoaded={() => setVideosPreloaded(true)} />
-
       <motion.h1
         className="text-4xl sm:text-6xl lg:text-7xl text-center tracking-wide"
         initial={{ opacity: 0, y: 50 }}
@@ -166,13 +145,11 @@ const HeroSection = () => {
           index={1} 
           loop={true} 
           endOffset={0.5}
-          isPreloaded={videosPreloaded}
         />
         <VideoPlayer 
           src="/assets/video2.mp4" 
           index={2} 
           loop={true}
-          isPreloaded={videosPreloaded}
         />
       </motion.div>
 

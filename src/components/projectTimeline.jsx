@@ -87,7 +87,7 @@ const Projects = () => {
       title: "MedicArm",
       description: "A robotic arm designed for efficient and safe sorting of biohazardous waste into user-defined containers using intuitive voice commands. It integrates Raspberry Pi and Arduino for precise hardware control, along with AI-driven speech recognition to enable hands-free operation. Additionally, IBM Watson Text-to-Speech provides real-time auditory feedback, ensuring smooth and reliable user interaction.",
       technologies: ['Raspberry Pi', 'Arduino', 'Google Speech Recognition', 'IBM Watson', 'MongoDB', 'OpenAI'],
-      videoSrc: "/assets/medicarm.mkv",
+      videoSrc: "/assets/medicarm.mp4",
       githubLink: "https://github.com/AumkarMali/MEDIC_Arm.git",
       alt: "MedicArm Project"
     },

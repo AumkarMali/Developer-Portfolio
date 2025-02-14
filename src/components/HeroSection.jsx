@@ -73,10 +73,6 @@ const VideoPlayer = ({ src, index, loop = false, endOffset = 0, onClick }) => {
 const HeroSection = () => {
   const [showGame, setShowGame] = useState(false);
 
-  const handleVideo2Click = () => {
-    setShowGame(true);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -86,7 +82,7 @@ const HeroSection = () => {
       className="flex flex-col items-center mt-6 lg:mt-20"
     >
       {showGame ? (
-        <Game />
+        <Game onClose={() => setShowGame(false)} />
       ) : (
         <>
           <motion.h1
@@ -138,7 +134,12 @@ const HeroSection = () => {
             transition={{ duration: 1 }}
           >
             <VideoPlayer src="/assets/video1.mp4" index={1} loop={true} />
-            <VideoPlayer src="/assets/video2.mp4" index={2} loop={true} onClick={handleVideo2Click} />
+            <VideoPlayer
+              src="/assets/video2.mp4"
+              index={2}
+              loop={true}
+              onClick={() => setShowGame(true)}
+            />
           </motion.div>
           <div className="h-32" />
         </>

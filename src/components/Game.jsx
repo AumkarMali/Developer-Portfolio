@@ -63,28 +63,22 @@ function Game({ onClose }) {
       // Wall collisions
       if(newX < PLAYER_SIZE/2) {
         newX = PLAYER_SIZE/2;
-        newXChange *= -0.5;
+        newXChange += 40 * (newXChange < 0 ? -1 : 1);
       }
       if(newX > WIDTH - PLAYER_SIZE/2) {
         newX = WIDTH - PLAYER_SIZE/2;
-        newXChange *= -0.5;
+        newXChange -= 40 * (newXChange > 0 ? -1 : 1);
       }
       if(newY < PLAYER_SIZE/2) {
         newY = PLAYER_SIZE/2;
-        newYChange *= -0.5;
+        newYChange += 40 * (newYChange < 0 ? -1 : 1);
       }
       if(newY > HEIGHT - PLAYER_SIZE/2) {
         newY = HEIGHT - PLAYER_SIZE/2;
-        newYChange *= -0.5;
+        newYChange -= 40 * (newYChange > 0 ? -1 : 1);
       }
 
-      return {
-        ...p,
-        x: newX,
-        y: newY,
-        xChange: newXChange,
-        yChange: newYChange,
-      };
+      return { ...p, x: newX, y: newY, xChange: newXChange, yChange: newYChange };
     });
   }, []);
 
@@ -195,14 +189,17 @@ function Game({ onClose }) {
       {...b, x: b.x + b.speed * delta} : 
       {...b, x: b.x - b.speed * delta}
     ));
-    setSniperBullets(prev => prev.map(b => ({...b, x: b.x + b.speed * delta}));
+    setSniperBullets(prev => prev.map(b => ({...b, x: b.x + b.speed * delta}))); // ✅ Fixed syntax
 
-    // Increase difficulty
+    // ✅ Add score increment
+    setPlayer(p => ({...p, score: p.score + delta * 0.1}));
+
+    // Increase difficulty with limits
     if(level < 60) {
       setLevel(l => l + delta * 0.02);
-      enemyAccel.current += 0.001 * delta;
-      enemyAccel2.current += 0.0001 * delta;
-      enemyAccel3.current += 0.07 * delta;
+      enemyAccel.current = Math.min(14, enemyAccel.current + 0.001 * delta);
+      enemyAccel2.current = Math.min(12, enemyAccel2.current + 0.0001 * delta);
+      enemyAccel3.current = Math.min(18, enemyAccel3.current + 0.07 * delta);
     }
 
     // Update bullet types display
@@ -212,7 +209,7 @@ function Game({ onClose }) {
     lastUpdate.current = now;
     animationFrame.current = requestAnimationFrame(update);
   }, [gameOver, updatePhysics, checkCollisions, level]);
-
+  
   // Key handlers
   useEffect(() => {
     const handleKeyDown = (e) => {

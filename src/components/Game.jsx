@@ -5,12 +5,12 @@ const HEIGHT = 600;
 const PLAYER_SIZE = 50;
 const MAX_SPEED = 7;
 const BULLET_TYPES = {
-  NORMAL: 'grey',
+  NORMAL: '#1f1f1f',
   SHOTGUN: 'yellow',
   SNIPER: 'red'
 };
 
-function Game({ onClose }) {
+const Game = ({ onClose }) => {
   const [player, setPlayer] = useState({
     x: 400,
     y: 300,
@@ -42,49 +42,49 @@ function Game({ onClose }) {
   const enemyAccel2 = useRef(2.5);
   const enemyAccel3 = useRef(15);
 
-  // Physics update
   const updatePhysics = useCallback(() => {
     setPlayer(p => {
       let newXChange = p.xChange + p.accelX;
       let newYChange = p.yChange + p.accelY;
 
-      // Apply friction
       if(p.accelX === 0) newXChange *= 0.92;
       if(p.accelY === 0) newYChange *= 0.92;
 
-      // Clamp to max speed
       newXChange = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, newXChange));
       newYChange = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, newYChange));
 
-      // Update position
       let newX = p.x + newXChange;
       let newY = p.y + newYChange;
 
-      // Wall collisions
+      // Wall collisions with bounce effect
       if(newX < PLAYER_SIZE/2) {
         newX = PLAYER_SIZE/2;
-        newXChange += 40 * (newXChange < 0 ? -1 : 1);
+        newXChange += 40;
       }
       if(newX > WIDTH - PLAYER_SIZE/2) {
         newX = WIDTH - PLAYER_SIZE/2;
-        newXChange -= 40 * (newXChange > 0 ? -1 : 1);
+        newXChange -= 40;
       }
       if(newY < PLAYER_SIZE/2) {
         newY = PLAYER_SIZE/2;
-        newYChange += 40 * (newYChange < 0 ? -1 : 1);
+        newYChange += 40;
       }
       if(newY > HEIGHT - PLAYER_SIZE/2) {
         newY = HEIGHT - PLAYER_SIZE/2;
-        newYChange -= 40 * (newYChange > 0 ? -1 : 1);
+        newYChange -= 40;
       }
 
-      return { ...p, x: newX, y: newY, xChange: newXChange, yChange: newYChange };
+      return {
+        ...p,
+        x: newX,
+        y: newY,
+        xChange: newXChange,
+        yChange: newYChange,
+      };
     });
   }, []);
 
-  // Bullet spawning
   const spawnBullets = useCallback(() => {
-    // Normal bullets
     if(level >= 0) {
       setBullets(prev => [
         ...prev.filter(b => b.x < WIDTH + 50),
@@ -97,7 +97,6 @@ function Game({ onClose }) {
       ]);
     }
 
-    // Shotgun bullets
     if(level >= 30) {
       setShotgunBullets(prev => [
         ...prev.filter(b => b.x < WIDTH + 50 && b.x > -50),
@@ -116,12 +115,8 @@ function Game({ onClose }) {
       ]);
     }
 
-    // Sniper bullets
     if(level >= 59) {
-      setWarnings(prev => [
-        ...prev,
-        { y: player.y, x: 0, active: true }
-      ]);
+      setWarnings(prev => [...prev, { y: player.y, x: 0, active: true }]);
       setTimeout(() => {
         setSniperBullets(prev => [
           ...prev,
@@ -132,7 +127,6 @@ function Game({ onClose }) {
     }
   }, [level, player.y]);
 
-  // Collision detection
   const checkCollisions = useCallback(() => {
     const playerRect = {
       x: player.x - PLAYER_SIZE/2,
@@ -141,7 +135,6 @@ function Game({ onClose }) {
       height: PLAYER_SIZE
     };
 
-    // Check all bullet types
     const allBullets = [...bullets, ...shotgunBullets, ...sniperBullets];
     allBullets.forEach(bullet => {
       const bulletRect = {
@@ -172,7 +165,6 @@ function Game({ onClose }) {
            rect1.y + rect1.height > rect2.y;
   };
 
-  // Game loop
   const update = useCallback(() => {
     if(gameOver) return;
 
@@ -182,19 +174,16 @@ function Game({ onClose }) {
     updatePhysics();
     checkCollisions();
     
-    // Update bullets
     setBullets(prev => prev.map(b => ({...b, x: b.x + b.speed * delta})));
     setShotgunBullets(prev => prev.map(b => 
       b.x < WIDTH/2 ? 
       {...b, x: b.x + b.speed * delta} : 
       {...b, x: b.x - b.speed * delta}
     ));
-    setSniperBullets(prev => prev.map(b => ({...b, x: b.x + b.speed * delta}))); // ✅ Fixed syntax
+    setSniperBullets(prev => prev.map(b => ({...b, x: b.x + b.speed * delta}));
 
-    // ✅ Add score increment
     setPlayer(p => ({...p, score: p.score + delta * 0.1}));
 
-    // Increase difficulty with limits
     if(level < 60) {
       setLevel(l => l + delta * 0.02);
       enemyAccel.current = Math.min(14, enemyAccel.current + 0.001 * delta);
@@ -202,15 +191,13 @@ function Game({ onClose }) {
       enemyAccel3.current = Math.min(18, enemyAccel3.current + 0.07 * delta);
     }
 
-    // Update bullet types display
     if(level >= 30) setBulletTypes("Bullets: Normal, Shotgun");
     if(level >= 59) setBulletTypes("Bullets: Normal, Shotgun, Sniper");
 
     lastUpdate.current = now;
     animationFrame.current = requestAnimationFrame(update);
   }, [gameOver, updatePhysics, checkCollisions, level]);
-  
-  // Key handlers
+
   useEffect(() => {
     const handleKeyDown = (e) => {
       keys.current[e.key] = true;
@@ -238,15 +225,12 @@ function Game({ onClose }) {
     };
   }, []);
 
-  // Game timers
   useEffect(() => {
     if(!gameStarted || gameOver) return;
-    
     const bulletTimer = setInterval(spawnBullets, 2000);
     return () => clearInterval(bulletTimer);
   }, [gameStarted, gameOver, spawnBullets]);
 
-  // Render
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -254,7 +238,6 @@ function Game({ onClose }) {
     const draw = () => {
       ctx.clearRect(0, 0, WIDTH, HEIGHT);
       
-      // Draw player
       ctx.fillStyle = player.hit ? '#ff0000' : player.color;
       ctx.fillRect(
         player.x - PLAYER_SIZE/2,
@@ -263,20 +246,17 @@ function Game({ onClose }) {
         PLAYER_SIZE
       );
       
-      // Draw bullets
       const allBullets = [...bullets, ...shotgunBullets, ...sniperBullets];
       allBullets.forEach(bullet => {
         ctx.fillStyle = bullet.type;
         ctx.fillRect(bullet.x, bullet.y, 20, 15);
       });
 
-      // Draw warnings
       warnings.forEach(w => {
         ctx.fillStyle = 'red';
         ctx.fillRect(w.x, w.y, 30, 30);
       });
 
-      // HUD
       ctx.fillStyle = 'white';
       ctx.font = '20px Arial';
       ctx.fillText(`Lives: ${player.lives}`, 10, 30);
@@ -287,7 +267,6 @@ function Game({ onClose }) {
     draw();
   }, [player, bullets, shotgunBullets, sniperBullets, warnings, bulletTypes]);
 
-  // Game state management
   useEffect(() => {
     if(countdown > 0) {
       const timer = setTimeout(() => setCountdown(c => c-1), 1000);
@@ -329,6 +308,6 @@ function Game({ onClose }) {
       )}
     </div>
   );
-}
+};
 
 export default Game;

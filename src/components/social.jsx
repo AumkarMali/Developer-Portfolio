@@ -150,7 +150,7 @@ const Social = () => {
           {isVisible && (
             <TypeAnimation
               sequence={[
-                'Socials', // Typing out "Socials"
+                '', // Typing out "Socials"
                 1000, // Pause for 1s after typing
               ]}
               wrapper="span"

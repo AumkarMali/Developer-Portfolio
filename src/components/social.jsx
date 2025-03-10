@@ -26,6 +26,7 @@ const Social = () => {
 
       try {
         const response = await axios.get('https://devportfolio-socials-216dbdffc1c5.herokuapp.com/');
+        console.log(response.data.subscriber_count);
         
         const data = [
           {

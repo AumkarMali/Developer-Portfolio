@@ -25,7 +25,7 @@ const Social = () => {
       setError(null);
 
       try {
-        const response = await axios.get('https://devportfolio-socials-216dbdffc1c5.herokuapp.com/');
+        const response = await axios.get('https://devportfolio-socials-216dbdffc1c5.herokuapp.com/api/get_channel_stats');
         console.log(response.data.subscriber_count);
         
         const data = [

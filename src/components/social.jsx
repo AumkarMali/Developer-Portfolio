@@ -10,6 +10,7 @@ import {
   Title,
 } from 'chart.js';
 
+// Register required chart components
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 const Social = () => {
@@ -26,30 +27,33 @@ const Social = () => {
 
       try {
         const response = await axios.get('https://devportfolio-socials-216dbdffc1c5.herokuapp.com/api/get_channel_stats');
-        console.log(response.data.subscriber_count);
-        
+        console.log(response.data);
+
         const data = [
           {
             title: 'Subscribers',
-            value: parseInt(response.data.subscriber_count, 10) || 0,
+            value: Math.max(parseInt(response.data.subscriber_count, 10) / 100, 1), // Prevents 0 values
+            displayValue: parseInt(response.data.subscriber_count, 10) || 0,
             color: '#10B981',
             icon: '👥',
-            description: 'People following your content'
+            description: 'People following your content',
           },
           {
             title: 'Total Views',
-            value: parseInt(response.data.view_count, 10) || 0,
+            value: Math.max(parseInt(response.data.view_count, 10) / 10000, 1),
+            displayValue: parseInt(response.data.view_count, 10) || 0,
             color: '#3B82F6',
             icon: '👀',
-            description: 'Total video views across channel'
+            description: 'Total video views across channel',
           },
           {
             title: 'Total Videos',
-            value: parseInt(response.data.video_count, 10) || 0,
+            value: parseInt(response.data.video_count, 10) || 1, // Keep as is, but ensure it's at least 1
+            displayValue: parseInt(response.data.video_count, 10) || 0,
             color: '#8B5CF6',
             icon: '📹',
-            description: 'Published videos on channel'
-          }
+            description: 'Published videos on channel',
+          },
         ];
 
         setScrapedData(data);
@@ -82,46 +86,46 @@ const Social = () => {
     labels: scrapedData.map((data) => data.title),
     datasets: [
       {
-        label: 'YouTube Channel Stats',
+        label: 'YouTube Channel Stats (Scaled)',
         data: scrapedData.map((data) => data.value),
         backgroundColor: [
           'rgba(16, 185, 129, 0.5)',
           'rgba(59, 130, 246, 0.5)',
-          'rgba(139, 92, 246, 0.5)'
+          'rgba(139, 92, 246, 0.5)',
         ],
         borderColor: [
           'rgba(16, 185, 129, 1)',
           'rgba(59, 130, 246, 1)',
-          'rgba(139, 92, 246, 1)'
+          'rgba(139, 92, 246, 1)',
         ],
         borderWidth: 1,
-      }
-    ]
+      },
+    ],
   };
 
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     animation: {
-      duration: isVisible ? 1000 : 0
+      duration: isVisible ? 1000 : 0,
     },
     plugins: {
       title: {
         display: true,
-        text: 'YouTube Channel Stats'
+        text: 'YouTube Channel Stats (Proportional)',
       },
       legend: {
-        position: 'bottom'
+        position: 'bottom',
       },
       tooltip: {
         callbacks: {
           label: (context) => {
-            const value = context.raw.toLocaleString();
-            return `${context.label}: ${value}`;
-          }
-        }
-      }
-    }
+            const index = context.dataIndex;
+            return `${scrapedData[index]?.title}: ${scrapedData[index]?.displayValue.toLocaleString()}`;
+          },
+        },
+      },
+    },
   };
 
   return (
@@ -174,7 +178,7 @@ const Social = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold" style={{ color: item.color }}>
-                      {item.value.toLocaleString()}
+                      {item.displayValue.toLocaleString()}
                     </span>
                   </div>
                 </div>

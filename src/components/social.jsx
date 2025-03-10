@@ -27,7 +27,6 @@ const Social = () => {
       try {
         const response = await axios.get('https://devportfolio-socials-216dbdffc1c5.herokuapp.com/');
         
-        // Parse API response values to numbers
         const data = [
           {
             title: 'Subscribers',
@@ -83,12 +82,11 @@ const Social = () => {
     datasets: [
       {
         label: 'YouTube Channel Stats',
-        // Use actual values without scaling
         data: scrapedData.map((data) => data.value),
         backgroundColor: [
-          'rgba(16, 185, 129, 0.5)', // Subscribers
-          'rgba(59, 130, 246, 0.5)',  // Views
-          'rgba(139, 92, 246, 0.5)'   // Videos
+          'rgba(16, 185, 129, 0.5)',
+          'rgba(59, 130, 246, 0.5)',
+          'rgba(139, 92, 246, 0.5)'
         ],
         borderColor: [
           'rgba(16, 185, 129, 1)',
@@ -103,10 +101,16 @@ const Social = () => {
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    animation: {
+      duration: isVisible ? 1000 : 0
+    },
     plugins: {
       title: {
         display: true,
         text: 'YouTube Channel Stats'
+      },
+      legend: {
+        position: 'bottom'
       },
       tooltip: {
         callbacks: {
@@ -120,9 +124,8 @@ const Social = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 p-8">
+    <div className="flex flex-col items-center justify-center gap-8 p-8 min-h-screen">
       <div ref={sectionRef} className="text-center px-1 lg:px-40 mt-10 lg:mt-5 mb-10">
-        <p><br /><br /><br /><br /></p>
         <h3 className="text-1xl sm:text-5xl lg:text-3xl tracking-wide opacity-80">
           {isVisible && (
             <TypeAnimation
@@ -143,9 +146,13 @@ const Social = () => {
         <p className="text-red-500">{error}</p>
       ) : (
         <div className="flex flex-col lg:flex-row gap-8 w-full justify-center items-center">
-          <div className="w-full lg:w-1/2 h-[500px] md:h-[550px] mb-10">
-            {scrapedData.length > 0 && (
+          <div className="w-full lg:w-1/2 h-[500px] md:h-[550px] mb-10 min-h-[300px]">
+            {scrapedData.length > 0 ? (
               <Pie data={chartData} options={chartOptions} />
+            ) : (
+              <div className="text-gray-500 h-full flex items-center justify-center">
+                No data available for chart
+              </div>
             )}
           </div>
 
@@ -166,7 +173,6 @@ const Social = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xl font-bold" style={{ color: item.color }}>
-                      {/* Safely format numbers */}
                       {item.value.toLocaleString()}
                     </span>
                   </div>

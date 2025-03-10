@@ -3,11 +3,8 @@ import { TypeAnimation } from 'react-type-animation';
 
 const Projects = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [videoInView, setVideoInView] = useState(false); // Track if video is in view
   const sectionRef = useRef(null);
-  const videoRef = useRef(null); // Reference to video element
 
-  // Intersection Observer to detect when the section comes into view
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -26,28 +23,8 @@ const Projects = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Intersection Observer for lazy loading videos
-  useEffect(() => {
-    const videoObserver = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVideoInView(true); // Set video to be in view when visible
-          videoObserver.disconnect();
-        }
-      },
-      { threshold: 0.5 }
-    );
-
-    if (videoRef.current) {
-      videoObserver.observe(videoRef.current);
-    }
-
-    return () => videoObserver.disconnect();
-  }, []);
-
   const VideoComponent = ({ src, alt }) => (
     <video
-      ref={videoRef} // Set the ref here to monitor the video element
       className="w-full h-full object-cover rounded-xl"
       autoPlay
       loop
@@ -55,9 +32,8 @@ const Projects = () => {
       playsInline
       preload="none"
       loading="lazy"
-      style={{ opacity: videoInView ? 1 : 0, transition: 'opacity 0.5s ease' }} // Fade in when visible
     >
-      {videoInView && <source src={src} type="video/mp4" />} {/* Only load source when in view */}
+      <source src={src} type="video/mp4" />
       Your browser does not support the video tag.
     </video>
   );
@@ -109,7 +85,7 @@ const Projects = () => {
   const projects = [
     {
       title: "MedicArm",
-      description: "A robotic arm designed for efficient and safe sorting of biohazardous waste...",
+      description: "A robotic arm designed for efficient and safe sorting of biohazardous waste into user-defined containers using intuitive voice commands. It integrates Raspberry Pi and Arduino for precise hardware control, along with AI-driven speech recognition to enable hands-free operation. Additionally, IBM Watson Text-to-Speech provides real-time auditory feedback, ensuring smooth and reliable user interaction.",
       technologies: ['Raspberry Pi', 'Arduino', 'Google Speech Recognition', 'IBM Watson', 'MongoDB', 'OpenAI'],
       videoSrc: "/assets/medicarm.mp4",
       githubLink: "https://github.com/AumkarMali/MEDIC_Arm.git",
@@ -117,7 +93,7 @@ const Projects = () => {
     },
     {
       title: "BehaViewer",
-      description: "This project utilizes machine learning, specifically the HistGradientBoostingClassifier...",
+      description: "This project utilizes machine learning, specifically the HistGradientBoostingClassifier, to predict a user's Internet Service Provider based on their demographic and device details. By training on a JSON dataset, the model learns to categorize users into specific groups based on key attributes.",
       technologies: ['Flask', 'Python', 'Heroku CLI', 'React', 'Tailwind CSS'],
       videoSrc: "/assets/video4.mp4",
       githubLink: "https://github.com/AumkarMali/BehaViewer.git",
@@ -125,7 +101,7 @@ const Projects = () => {
     },
     {
       title: "ACR - Automated Chess Robot",
-      description: "Built a sophisticated chess-playing robot combining hardware and software engineering...",
+      description: "Built a sophisticated chess-playing robot combining hardware and software engineering. The system features a robotic arm controlled through MATLAB and Raspberry Pi, with an advanced chess AI capable of processing up to 100,000 calculations per move.",
       technologies: ['MATLAB', 'Python', 'Raspberry Pi', 'Tkinter', 'AI'],
       videoSrc: "/assets/video1.mp4",
       githubLink: "https://github.com/AumkarMali/ACR-Robotic-Turk",
@@ -133,7 +109,7 @@ const Projects = () => {
     },
     {
       title: "Smart Bike - Human Metrics Measure",
-      description: "This project measures human physical metrics using sensors embedded in a bicycle handlebar...",
+      description: "This project measures human physical metrics using sensors embedded in a bicycle handlebar. It calculates various health parameters like heart rate, speed, and calories burned. The bike is connected to an app that provides real-time data.",
       technologies: ['Node.js', 'Discord.js', 'NLP', 'Bot Development'],
       imageSrc: "/images/thumbnail1.jpg",
       githubLink: "https://github.com/AumkarMali/SmartBike",
@@ -141,7 +117,7 @@ const Projects = () => {
     },
     {
       title: "RC Car Controlled with Arduino",
-      description: "Built an RC car with Bluetooth, IR sensors, and an Arduino...",
+      description: "Built an RC car with Bluetooth, IR sensors, and an Arduino. Designed a circuit schematic with relay, IR sensor, and servo motor. Programmed with Arduino IDE and C++ to show data on a mobile app. Achieved ~40 km/h speed with responsive controls.",
       technologies: ['Arduino', 'Bluetooth', 'C++', 'IR Sensors', 'Motor Control'],
       videoSrc: "/assets/video3.mp4",
       githubLink: "https://github.com/AumkarMali/Bluetooth-RC-Car",
@@ -149,7 +125,7 @@ const Projects = () => {
     },
     {
       title: "Voice Recognition AI Assistant",
-      description: "Developed a voice recognition AI assistant capable of understanding commands for weather updates...",
+      description: "Developed a voice recognition AI assistant capable of understanding commands for weather updates, calculations, music playback, and more. Includes speech-to-text and text-to-speech functionality via Google and IBM Watson APIs.",
       technologies: ['Python', 'AI', 'Speech Recognition', 'IBM Watson'],
       imageSrc: "/images/VR.png",
       githubLink: "https://github.com/AumkarMali/Voice-Recognition-Assistant",

@@ -29,7 +29,7 @@ const Social = () => {
 
       try {
         // Make a GET request to your Heroku backend (API) to fetch stats
-        const response = await axios.get('https://port23-cc07b97f21d4.herokuapp.com/api/get_channel_stats');
+        const response = await axios.get('https://dashboard.heroku.com/apps/devportfolio-socials/deploy/github');
         
         // Log the entire response to the console for debugging
         console.log('Response from API:', response.data);
@@ -150,7 +150,7 @@ const Social = () => {
           {isVisible && (
             <TypeAnimation
               sequence={[
-                '', // Typing out "Socials"
+                'Socials', // Typing out "Socials"
                 1000, // Pause for 1s after typing
               ]}
               wrapper="span"

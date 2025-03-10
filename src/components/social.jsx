@@ -31,8 +31,6 @@ const Social = () => {
         // Make a GET request to your Heroku backend (API) to fetch stats
         const response = await axios.get('https://devportfolio-socials-216dbdffc1c5.herokuapp.com/');
         
-        // Log the entire response to the console for debugging
-        console.log('Response from API:', response.data);
 
         // Assuming the API returns the data in the same format
         const data = [

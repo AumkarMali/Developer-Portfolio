@@ -5,6 +5,14 @@ const HEIGHT = 600;
 const PLAYER_SIZE = 50;
 const MAX_SPEED = 7;
 const GRAY12 = '#1f1f1f';
+const COLORS = {
+  player: '#0078fa',
+  normalBullet: '#1f1f1f',
+  shotgunBullet: 'yellow',
+  sniperBullet: 'red',
+  warning: 'red',
+  text: '#a1eb34'
+};
 
 const Game = ({ onClose }) => {
   const [player, setPlayer] = useState({
@@ -14,7 +22,7 @@ const Game = ({ onClose }) => {
     yChange: 0,
     accelX: 0,
     accelY: 0,
-    color: '#0078fa',
+    color: COLORS.player,
     lives: 3,
     score: 0,
     hit: false,
@@ -28,7 +36,6 @@ const Game = ({ onClose }) => {
   const [countdown, setCountdown] = useState(3);
   const [gameStarted, setGameStarted] = useState(false);
   const [bulletTypes, setBulletTypes] = useState("Bullets: Normal");
-  const [level, setLevel] = useState(0);
 
   const canvasRef = useRef(null);
   const keys = useRef({});
@@ -37,18 +44,19 @@ const Game = ({ onClose }) => {
   const enemyAccel = useRef(3.6);
   const enemyAccel2 = useRef(2.5);
   const enemyAccel3 = useRef(15);
-  const hitTimer = useRef(0);
+  const level = useRef(0);
 
+  // Physics update
   const updatePhysics = useCallback(() => {
     setPlayer(p => {
       let newXChange = p.xChange + p.accelX;
       let newYChange = p.yChange + p.accelY;
 
-      // Apply friction when no acceleration
+      // Apply friction
       if (p.accelX === 0) newXChange *= 0.92;
       if (p.accelY === 0) newYChange *= 0.92;
 
-      // Clamp speeds
+      // Speed limits
       newXChange = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, newXChange));
       newYChange = Math.max(-MAX_SPEED, Math.min(MAX_SPEED, newYChange));
 
@@ -83,6 +91,7 @@ const Game = ({ onClose }) => {
     });
   }, []);
 
+  // Bullet spawning
   const spawnBullet = useCallback((type) => {
     const newBullet = {
       x: type === 'shotgun-right' ? WIDTH : -40,
@@ -103,6 +112,7 @@ const Game = ({ onClose }) => {
     }
   }, [player.y]);
 
+  // Collision detection
   const checkCollisions = useCallback(() => {
     const playerRect = {
       x: player.x,
@@ -111,62 +121,59 @@ const Game = ({ onClose }) => {
       height: PLAYER_SIZE
     };
 
-    const checkBulletCollision = (bullet) => {
-      const bulletRect = {
-        x: bullet.x,
-        y: bullet.y,
-        width: bullet.width,
-        height: bullet.height
-      };
-
-      return (playerRect.x < bulletRect.x + bulletRect.width &&
-        playerRect.x + playerRect.width > bulletRect.x &&
-        playerRect.y < bulletRect.y + bulletRect.height &&
-        playerRect.y + playerRect.height > bulletRect.y);
+    const checkCollision = (bullet) => {
+      return (
+        playerRect.x < bullet.x + bullet.width &&
+        playerRect.x + playerRect.width > bullet.x &&
+        playerRect.y < bullet.y + bullet.height &&
+        playerRect.y + playerRect.height > bullet.y
+      );
     };
 
     // Check normal bullets
     bullets.forEach((bullet, index) => {
-      if (checkBulletCollision(bullet)) {
+      if (checkCollision(bullet)) {
         setPlayer(p => ({
           ...p,
           lives: p.lives - 1,
           hit: true,
-          xChange: p.xChange + (bullet.type === 'normal' ? 40 : -40)
+          xChange: p.xChange + (bullet.type === 'normal' ? 40 : -40),
+          score: p.score + 1
         }));
         setBullets(prev => prev.filter((_, i) => i !== index));
-        hitTimer.current = Date.now();
+        setTimeout(() => setPlayer(p => ({ ...p, hit: false })), 1000);
       }
     });
 
-    // Check other bullet types
+    // Check other bullets
     [...shotgunBullets, ...sniperBullets].forEach((bullet, index) => {
-      if (checkBulletCollision(bullet)) {
+      if (checkCollision(bullet)) {
         setPlayer(p => ({
           ...p,
           lives: p.lives - 1,
           hit: true,
-          xChange: p.xChange + (bullet.type === 'shotgun-left' ? -40 : 40)
+          xChange: p.xChange + (bullet.type === 'shotgun-left' ? -40 : 40),
+          score: p.score + 1
         }));
         if (bullet.type === 'sniper') {
           setSniperBullets(prev => prev.filter((_, i) => i !== index));
         } else {
           setShotgunBullets(prev => prev.filter((_, i) => i !== index));
         }
-        hitTimer.current = Date.now();
+        setTimeout(() => setPlayer(p => ({ ...p, hit: false })), 1000);
       }
     });
 
     if (player.lives <= 0) setGameOver(true);
   }, [player, bullets, shotgunBullets, sniperBullets]);
 
+  // Game loop
   const updateGame = useCallback(() => {
     if (gameOver) return;
 
     const now = Date.now();
     const deltaTime = (now - lastUpdate.current) / 1000;
 
-    // Update physics and collisions
     updatePhysics();
     checkCollisions();
 
@@ -189,22 +196,22 @@ const Game = ({ onClose }) => {
       .filter(b => b.x < WIDTH + 100));
 
     // Increase difficulty
-    setLevel(l => l + deltaTime);
+    level.current += deltaTime;
     enemyAccel.current = Math.min(14, enemyAccel.current + 0.001);
     enemyAccel2.current = Math.min(12, enemyAccel2.current + 0.0001);
     enemyAccel3.current = Math.min(18, enemyAccel3.current + 0.07);
 
-    // Spawn bullets based on level
-    if (level >= 30) setBulletTypes("Bullets: Normal, Shotgun");
-    if (level >= 59) setBulletTypes("Bullets: Normal, Shotgun, Sniper");
+    // Update bullet types
+    if (level.current >= 30) setBulletTypes("Bullets: Normal, Shotgun");
+    if (level.current >= 59) setBulletTypes("Bullets: Normal, Shotgun, Sniper");
 
-    // Random bullet spawning
+    // Spawn bullets
     if (Math.random() < 0.02) spawnBullet('normal');
-    if (level >= 30 && Math.random() < 0.015) {
+    if (level.current >= 30 && Math.random() < 0.015) {
       spawnBullet('shotgun-left');
       spawnBullet('shotgun-right');
     }
-    if (level >= 59 && Math.random() < 0.01) {
+    if (level.current >= 59 && Math.random() < 0.01) {
       setWarnings(prev => [...prev, { y: player.y, x: 0 }]);
       setTimeout(() => {
         spawnBullet('sniper');
@@ -214,16 +221,144 @@ const Game = ({ onClose }) => {
 
     lastUpdate.current = now;
     animationFrame.current = requestAnimationFrame(updateGame);
-  }, [gameOver, updatePhysics, checkCollisions, level, spawnBullet, player.y]);
+  }, [gameOver, updatePhysics, checkCollisions, spawnBullet, player.y]);
 
-  // Key handling and game loop setup...
+  // Input handling
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      keys.current[e.key] = true;
+      setPlayer(p => ({
+        ...p,
+        accelX: keys.current.ArrowLeft ? -0.2 : keys.current.ArrowRight ? 0.2 : 0,
+        accelY: keys.current.ArrowUp ? -0.2 : keys.current.ArrowDown ? 0.2 : 0
+      }));
+    };
 
-  // Render function remains similar but updated with proper bullet rendering
+    const handleKeyUp = (e) => {
+      keys.current[e.key] = false;
+      setPlayer(p => ({
+        ...p,
+        accelX: keys.current.ArrowLeft ? -0.2 : keys.current.ArrowRight ? 0.2 : 0,
+        accelY: keys.current.ArrowUp ? -0.2 : keys.current.ArrowDown ? 0.2 : 0
+      }));
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  // Rendering
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    const draw = () => {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+      // Draw player
+      ctx.fillStyle = player.hit ? 'red' : player.color;
+      ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
+
+      // Draw bullets
+      bullets.forEach(b => {
+        ctx.fillStyle = COLORS.normalBullet;
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
+
+      shotgunBullets.forEach(b => {
+        ctx.fillStyle = COLORS.shotgunBullet;
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
+
+      sniperBullets.forEach(b => {
+        ctx.fillStyle = COLORS.sniperBullet;
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
+
+      // Draw warnings
+      warnings.forEach(w => {
+        ctx.fillStyle = COLORS.warning;
+        ctx.fillRect(w.x, w.y, 30, 30);
+      });
+
+      // Draw UI
+      ctx.fillStyle = COLORS.text;
+      ctx.font = '20px Arial';
+      ctx.fillText(`Lives: ${player.lives}`, 20, 30);
+      ctx.fillText(`Score: ${Math.floor(player.score)}`, 20, 60);
+      ctx.fillText(bulletTypes, 20, 90);
+
+      // Game over screen
+      if (gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.fillStyle = 'white';
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', WIDTH/2, HEIGHT/2);
+        ctx.fillText(`Final Score: ${Math.floor(player.score)}`, WIDTH/2, HEIGHT/2 + 50);
+        ctx.textAlign = 'left';
+      }
+
+      // Countdown screen
+      if (!gameStarted) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(0, 0, WIDTH, HEIGHT);
+        ctx.fillStyle = 'white';
+        ctx.font = '48px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(`Starting in ${countdown}`, WIDTH/2, HEIGHT/2);
+        ctx.textAlign = 'left';
+      }
+    };
+
+    const animation = requestAnimationFrame(() => {
+      draw();
+      if (!gameOver) animationFrame.current = requestAnimationFrame(draw);
+    });
+
+    return () => cancelAnimationFrame(animation);
+  }, [bullets, shotgunBullets, sniperBullets, warnings, player, gameOver, countdown, gameStarted, bulletTypes]);
+
+  // Game state management
+  useEffect(() => {
+    if (countdown > 0 && !gameStarted) {
+      const timer = setInterval(() => {
+        setCountdown(c => c - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    } else if (countdown === 0 && !gameStarted) {
+      setGameStarted(true);
+      lastUpdate.current = Date.now();
+      animationFrame.current = requestAnimationFrame(updateGame);
+    }
+  }, [countdown, gameStarted, updateGame]);
 
   return (
-    <div>
-      <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} />
-      <button onClick={onClose}>Close Game</button>
+    <div style={{ position: 'relative' }}>
+      <canvas
+        ref={canvasRef}
+        width={WIDTH}
+        height={HEIGHT}
+        style={{ border: '2px solid black' }}
+      />
+      <button 
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          padding: '10px 20px',
+          fontSize: '16px',
+          cursor: 'pointer'
+        }}
+      >
+        Close Game
+      </button>
     </div>
   );
 };

@@ -86,12 +86,22 @@ const Game = ({ onClose }) => {
   }, []);
 
   const spawnBullet = useCallback((type) => {
-    const yPos = player.y + (Math.random() * 40 - 20); // Tight Y spread around player
+    const playerY = player.y + PLAYER_SIZE/2;
+    const playerX = player.x + PLAYER_SIZE/2;
+    
+    const startX = type === 'shotgun-right' ? WIDTH : -40;
+    const dx = playerX - startX;
+    const dy = playerY - (player.y + (Math.random() * 40 - 20));
+    const angle = Math.atan2(dy, dx);
+    
+    const speed = type === 'normal' ? enemyAccel.current : 
+                 type.includes('shotgun') ? enemyAccel2.current : enemyAccel3.current;
+
     const newBullet = {
-      x: type === 'shotgun-right' ? WIDTH : -40,
-      y: yPos,
-      speed: type === 'normal' ? enemyAccel.current : 
-             type.includes('shotgun') ? enemyAccel2.current : enemyAccel3.current,
+      x: startX,
+      y: player.y + (Math.random() * 40 - 20),
+      velX: Math.cos(angle) * speed,
+      velY: Math.sin(angle) * speed,
       type: type,
       width: type === 'sniper' ? 20 : 40,
       height: type === 'sniper' ? 7 : 20
@@ -104,7 +114,7 @@ const Game = ({ onClose }) => {
     } else if (type === 'sniper') {
       setSniperBullets(prev => [...prev, newBullet]);
     }
-  }, [player.y]);
+  }, [player.x, player.y]);
 
   const checkCollisions = useCallback(() => {
     const playerRect = {
@@ -127,7 +137,6 @@ const Game = ({ onClose }) => {
           ...p,
           lives: p.lives - 1,
           hit: true,
-          xChange: p.xChange + (bullet.type === 'normal' ? 40 : -40),
           score: p.score + 1
         }));
         setBullets(prev => prev.filter((_, i) => i !== index));
@@ -140,7 +149,6 @@ const Game = ({ onClose }) => {
           ...p,
           lives: p.lives - 1,
           hit: true,
-          xChange: p.xChange + (bullet.type === 'shotgun-left' ? -40 : 40),
           score: p.score + 1
         }));
         if (bullet.type === 'sniper') {
@@ -164,20 +172,27 @@ const Game = ({ onClose }) => {
     checkCollisions();
 
     setBullets(prev => prev
-      .map(b => ({ ...b, x: b.x + b.speed * deltaTime * 60 }))
-      .filter(b => b.x < WIDTH + 100));
+      .map(b => ({ 
+        ...b, 
+        x: b.x + b.velX,
+        y: b.y + b.velY
+      }))
+      .filter(b => b.x < WIDTH + 100 && b.x > -100));
 
     setShotgunBullets(prev => prev
       .map(b => ({
         ...b,
-        x: b.type === 'shotgun-left' ? 
-           b.x - b.speed * deltaTime * 60 : 
-           b.x + b.speed * deltaTime * 60
+        x: b.x + b.velX,
+        y: b.y + b.velY
       }))
       .filter(b => b.x > -100 && b.x < WIDTH + 100));
 
     setSniperBullets(prev => prev
-      .map(b => ({ ...b, x: b.x + b.speed * deltaTime * 60 }))
+      .map(b => ({ 
+        ...b,
+        x: b.x + b.velX,
+        y: b.y + b.velY
+      }))
       .filter(b => b.x < WIDTH + 100));
 
     level.current += deltaTime;
@@ -240,9 +255,11 @@ const Game = ({ onClose }) => {
       ctx.fillStyle = COLORS.background;
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
+      // Draw player
       ctx.fillStyle = player.hit ? 'red' : player.color;
       ctx.fillRect(player.x, player.y, PLAYER_SIZE, PLAYER_SIZE);
 
+      // Draw bullets
       [bullets, shotgunBullets, sniperBullets].forEach(bulletGroup => {
         bulletGroup.forEach(b => {
           ctx.fillStyle = COLORS.bullet;
@@ -250,17 +267,21 @@ const Game = ({ onClose }) => {
         });
       });
 
+      // Draw warnings
       warnings.forEach(w => {
         ctx.fillStyle = COLORS.warning;
         ctx.fillRect(w.x, w.y, 30, 30);
       });
 
+      // Draw UI
       ctx.fillStyle = COLORS.text;
       ctx.font = '20px Arial';
+      ctx.textAlign = 'left';
       ctx.fillText(`Lives: ${player.lives}`, 20, 30);
       ctx.fillText(`Score: ${Math.floor(player.score)}`, 20, 60);
       ctx.fillText(bulletTypes, 20, 90);
 
+      // Game over screen
       if (gameOver) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -271,6 +292,7 @@ const Game = ({ onClose }) => {
         ctx.fillText(`Final Score: ${Math.floor(player.score)}`, WIDTH/2, HEIGHT/2 + 50);
       }
 
+      // Countdown screen
       if (!gameStarted) {
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
@@ -319,7 +341,8 @@ const Game = ({ onClose }) => {
           cursor: 'pointer',
           backgroundColor: COLORS.text,
           color: 'white',
-          border: 'none'
+          border: 'none',
+          borderRadius: '5px'
         }}
       >
         Close Game

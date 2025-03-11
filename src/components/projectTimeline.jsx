@@ -87,7 +87,7 @@ const Projects = () => {
       title: "MedicArm",
       description: "A robotic arm designed for efficient and safe sorting of biohazardous waste into user-defined containers using intuitive voice commands. It integrates Raspberry Pi and Arduino for precise hardware control, along with AI-driven speech recognition to enable hands-free operation. Additionally, IBM Watson Text-to-Speech provides real-time auditory feedback, ensuring smooth and reliable user interaction.",
       technologies: ['Raspberry Pi', 'Arduino', 'Google Speech Recognition', 'IBM Watson', 'MongoDB', 'OpenAI'],
-      videoSrc: "/assets/medicarm.mp4",
+      videoSrc: "/assets/medicarm.webm",
       githubLink: "https://github.com/AumkarMali/MEDIC_Arm.git",
       alt: "MedicArm Project"
     },
@@ -95,7 +95,7 @@ const Projects = () => {
       title: "BehaViewer",
       description: "This project utilizes machine learning, specifically the HistGradientBoostingClassifier, to predict a user's Internet Service Provider based on their demographic and device details. By training on a JSON dataset, the model learns to categorize users into specific groups based on key attributes.",
       technologies: ['Flask', 'Python', 'Heroku CLI', 'React', 'Tailwind CSS'],
-      videoSrc: "/assets/video4.mp4",
+      videoSrc: "/assets/video4.webm",
       githubLink: "https://github.com/AumkarMali/BehaViewer.git",
       alt: "BehaViewer Project"
     },
@@ -103,7 +103,7 @@ const Projects = () => {
       title: "ACR - Automated Chess Robot",
       description: "Built a sophisticated chess-playing robot combining hardware and software engineering. The system features a robotic arm controlled through MATLAB and Raspberry Pi, with an advanced chess AI capable of processing up to 100,000 calculations per move.",
       technologies: ['MATLAB', 'Python', 'Raspberry Pi', 'Tkinter', 'AI'],
-      videoSrc: "/assets/video1.mp4",
+      videoSrc: "/assets/video1.webm",
       githubLink: "https://github.com/AumkarMali/ACR-Robotic-Turk",
       alt: "Automated Chess Robot"
     },
@@ -119,7 +119,7 @@ const Projects = () => {
       title: "RC Car Controlled with Arduino",
       description: "Built an RC car with Bluetooth, IR sensors, and an Arduino. Designed a circuit schematic with relay, IR sensor, and servo motor. Programmed with Arduino IDE and C++ to show data on a mobile app. Achieved ~40 km/h speed with responsive controls.",
       technologies: ['Arduino', 'Bluetooth', 'C++', 'IR Sensors', 'Motor Control'],
-      videoSrc: "/assets/video3.mp4",
+      videoSrc: "/assets/video3.webm",
       githubLink: "https://github.com/AumkarMali/Bluetooth-RC-Car",
       alt: "RC Car Project"
     },

@@ -133,9 +133,9 @@ const HeroSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            <VideoPlayer src="/assets/video1.mp4" index={1} loop={true} />
+            <VideoPlayer src="/assets/video1.webm" index={1} loop={true} />
             <VideoPlayer
-              src="/assets/video2.mp4"
+              src="/assets/video2.webm"
               index={2}
               loop={true}
               onClick={() => setShowGame(true)}

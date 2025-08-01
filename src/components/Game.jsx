@@ -8,6 +8,7 @@ const BG_COLOR = '#1f1f1f';
 const PLAYER_COLOR = '#0078fa';
 const BULLET_COLOR = 'white';
 const WARNING_COLOR = 'red';
+const PLAYER_BULLET_COLOR = 'yellow';
 
 const BlockDodge = () => {
   const canvasRef = useRef(null);
@@ -16,17 +17,24 @@ const BlockDodge = () => {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
+  const [playerColor, setPlayerColor] = useState(PLAYER_COLOR);
+  const [bulletTypes, setBulletTypes] = useState("Bullets: Normal");
 
   const player = useRef({ x: 400, y: 300, vx: 0, vy: 0, ax: 0, ay: 0 });
   const bullets = useRef([]);
+  const shotgunBullets = useRef([]);
+  const playerBullets = useRef([]);
   const bulletSpeed = useRef(3.6);
+  const shotgunSpeed = useRef(2.5);
   const levelTimer = useRef(0);
   const keys = useRef({});
   const lastTime = useRef(Date.now());
+  const hitTimer = useRef(0);
 
   useEffect(() => {
     const downHandler = (e) => {
       keys.current[e.key] = true;
+      if (e.key === 'f') fireBullet();
     };
     const upHandler = (e) => {
       keys.current[e.key] = false;
@@ -50,6 +58,11 @@ const BlockDodge = () => {
       requestAnimationFrame(gameLoop);
     }
   }, [countdown, started]);
+
+  const fireBullet = () => {
+    const p = player.current;
+    playerBullets.current.push({ x: p.x, y: p.y + PLAYER_SIZE / 2, vx: -13, vy: 0 });
+  };
 
   const gameLoop = () => {
     const now = Date.now();
@@ -90,32 +103,65 @@ const BlockDodge = () => {
     // Level progression
     levelTimer.current += dt;
     bulletSpeed.current = Math.min(14, bulletSpeed.current + 0.001);
+    shotgunSpeed.current = Math.min(12, shotgunSpeed.current + 0.0001);
+
+    if (levelTimer.current >= 30) setBulletTypes("Bullets: Normal, Shotgun");
+    if (levelTimer.current >= 59) setBulletTypes("Bullets: Normal, Shotgun, Sniper");
 
     // Spawn bullets
     if (Math.random() < 0.02) {
       const bulletY = Math.random() * (HEIGHT - 20);
       bullets.current.push({ x: -40, y: bulletY, vx: bulletSpeed.current, vy: 0 });
     }
+    if (levelTimer.current >= 30 && Math.random() < 0.015) {
+      const offset = 20;
+      shotgunBullets.current.push({ x: -40, y: p.y + offset, vx: shotgunSpeed.current });
+      shotgunBullets.current.push({ x: WIDTH + 40, y: p.y - offset, vx: -shotgunSpeed.current });
+    }
 
-    // Update bullets
-    bullets.current.forEach((b) => {
-      b.x += b.vx;
-      b.y += b.vy;
-    });
+    bullets.current.forEach((b) => { b.x += b.vx; });
+    shotgunBullets.current.forEach((b) => { b.x += b.vx; });
+    playerBullets.current.forEach((b) => { b.x += b.vx; });
+
     bullets.current = bullets.current.filter((b) => b.x < WIDTH + 100);
+    shotgunBullets.current = shotgunBullets.current.filter((b) => b.x > -100 && b.x < WIDTH + 100);
+    playerBullets.current = playerBullets.current.filter((b) => b.x > -50);
 
-    // Collision
-    bullets.current.forEach((b, i) => {
+    const allEnemyBullets = [...bullets.current, ...shotgunBullets.current];
+
+    allEnemyBullets.forEach((b, i) => {
       const hit = b.x < p.x + PLAYER_SIZE && b.x + 40 > p.x &&
                   b.y < p.y + PLAYER_SIZE && b.y + 20 > p.y;
       if (hit) {
-        bullets.current.splice(i, 1);
+        if (i < bullets.current.length) bullets.current.splice(i, 1);
+        else shotgunBullets.current.splice(i - bullets.current.length, 1);
         setLives((l) => l - 1);
         setScore((s) => s + 1);
+        hitTimer.current = 0.7;
       }
     });
 
+    playerBullets.current.forEach((pb, pi) => {
+      allEnemyBullets.forEach((eb, ei) => {
+        const hit = pb.x < eb.x + 40 && pb.x + 3 > eb.x &&
+                    pb.y < eb.y + 20 && pb.y + 15 > eb.y;
+        if (hit) {
+          if (ei < bullets.current.length) bullets.current.splice(ei, 1);
+          else shotgunBullets.current.splice(ei - bullets.current.length, 1);
+          playerBullets.current.splice(pi, 1);
+          setScore((s) => s + 2);
+        }
+      });
+    });
+
     if (lives <= 0) setGameOver(true);
+
+    if (hitTimer.current > 0) {
+      hitTimer.current -= dt;
+      setPlayerColor((prev) => (Math.floor(hitTimer.current * 10) % 2 === 0 ? 'grey' : PLAYER_COLOR));
+    } else {
+      setPlayerColor(PLAYER_COLOR);
+    }
   };
 
   const draw = () => {
@@ -123,22 +169,22 @@ const BlockDodge = () => {
     ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-    // Draw player
     const p = player.current;
-    ctx.fillStyle = PLAYER_COLOR;
+    ctx.fillStyle = playerColor;
     ctx.fillRect(p.x, p.y, PLAYER_SIZE, PLAYER_SIZE);
 
-    // Draw bullets
     ctx.fillStyle = BULLET_COLOR;
-    bullets.current.forEach((b) => {
-      ctx.fillRect(b.x, b.y, 40, 20);
-    });
+    bullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 40, 20));
+    shotgunBullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 40, 20));
 
-    // UI
+    ctx.fillStyle = PLAYER_BULLET_COLOR;
+    playerBullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 3, 15));
+
     ctx.fillStyle = 'red';
     ctx.font = '20px Arial';
     ctx.fillText(`Lives: ${lives}`, 20, 30);
     ctx.fillText(`Score: ${score}`, 20, 60);
+    ctx.fillText(bulletTypes, 20, 90);
 
     if (gameOver) {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';

@@ -58,7 +58,7 @@ const Social = () => {
 
         setScrapedData(data);
       } catch (err) {
-        setError('Failed to fetch data. Please try again later.');
+        setError('Failed');
         console.error('Error fetching data:', err);
       } finally {
         setLoading(false);

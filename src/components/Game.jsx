@@ -4,7 +4,7 @@ const WIDTH = 800;
 const HEIGHT = 600;
 const PLAYER_SIZE = 50;
 const MAX_SPEED = 7;
-const BG_COLOR = '#1f1f1f';
+const BG_COLOR = 'black';
 const PLAYER_COLOR = '#0078fa';
 const BULLET_COLOR = 'white';
 const WARNING_COLOR = 'red';
@@ -87,7 +87,6 @@ const BlockDodge = () => {
 
   const update = (dt) => {
     const p = player.current;
-
     p.ax = keys.current['a'] ? -0.2 : keys.current['d'] ? 0.2 : 0;
     p.ay = keys.current['w'] ? -0.2 : keys.current['s'] ? 0.2 : 0;
 
@@ -182,47 +181,56 @@ const BlockDodge = () => {
     ctx.fillStyle = BULLET_COLOR;
     bullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 40, 20));
     shotgunBullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 40, 20));
-    sniperBullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 20, 7));
+    sniperBullets.current.forEach((b) => ctx.fillRect(b.x, b.y + 3, 20, 2));
 
     ctx.fillStyle = WARNING_COLOR;
-    warnings.current.forEach((w) => ctx.fillRect(0, w.y, 30, 30));
+    warnings.current.forEach((w) => ctx.fillRect(0, w.y, WIDTH, 2));
 
     ctx.fillStyle = PLAYER_BULLET_COLOR;
     playerBullets.current.forEach((b) => ctx.fillRect(b.x, b.y, 3, 15));
 
-    ctx.fillStyle = 'red';
-    ctx.font = '20px Arial';
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 20px Lato, sans-serif';
+    ctx.textAlign = 'left';
     ctx.fillText(`Lives: ${lives}`, 20, 30);
     ctx.fillText(`Score: ${score}`, 20, 60);
     ctx.fillText(bulletTypes, 20, 90);
 
     if (gameOver) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
       ctx.fillStyle = 'white';
-      ctx.font = '48px Arial';
+      ctx.font = '48px Lato, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('GAME OVER', WIDTH / 2, HEIGHT / 2);
       ctx.fillText(`Final Score: ${score}`, WIDTH / 2, HEIGHT / 2 + 60);
     }
 
     if (!started) {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
       ctx.fillStyle = 'white';
-      ctx.font = '48px Arial';
+      ctx.font = '48px Lato, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(`Starting in ${countdown}`, WIDTH / 2, HEIGHT / 2);
     }
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      width={WIDTH}
-      height={HEIGHT}
-      style={{ border: '2px solid black' }}
-    />
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      background: 'radial-gradient(circle at center, #1f1f1f, #000000)'
+    }}>
+      <canvas
+        ref={canvasRef}
+        width={WIDTH}
+        height={HEIGHT}
+        style={{ border: '2px solid black' }}
+      />
+    </div>
   );
 };
 
